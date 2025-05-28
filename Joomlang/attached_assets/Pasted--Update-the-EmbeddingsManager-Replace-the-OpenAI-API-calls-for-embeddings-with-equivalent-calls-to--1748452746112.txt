@@ -1,0 +1,43 @@
+. Update the EmbeddingsManager
+Replace the OpenAI API calls for embeddings with equivalent calls to Hugging Face or Gemini models. Here’s a modified version of your EmbeddingsManager class:
+
+import { HuggingFace } from "huggingface";  // Assumed library for Hugging Face
+// Import Gemini related functions if available
+import { Gemini } from "gemini"; // Placeholder import
+export class EmbeddingsManager {
+  private huggingFaceClient: HuggingFace; // Initialize Hugging Face client
+  // private geminiClient: any; // Uncomment if Gemini needs initialization
+  constructor() {
+    const huggingFaceApiKey = process.env.HUGGINGFACE_API_KEY; // Hugging Face API Key
+    if (!huggingFaceApiKey) {
+      throw new Error("Hugging Face API key not found");
+    }
+    this.huggingFaceClient = new HuggingFace({ apiKey: huggingFaceApiKey });
+    // Initialize Gemini client similarly if needed
+  }
+  async generateEmbedding(text: string, model: string = "MODEL_NAME"): Promise<number[]> {
+    try {
+      const response = await this.huggingFaceClient.embeddings.create({ model, input: text });
+      // Use Gemini API if needed
+      return response.data[0].embedding;
+    } catch (error: any) {
+      throw new Error(`Embedding generation failed: ${error.message}`);
+    }
+  }
+  // Replace methods that involve OpenAI with similar methods from Hugging Face or Gemini
+  // Update methods like generateBatchEmbeddings, calculateSimilarity, etc. analogously.
+}
+2. Update the API Calls
+In your integration points (where you manage models or document processing), ensure all references to OpenAI are replaced with equivalent calls for Hugging Face and Gemini. For instance, in your API helper functions, you might have:
+
+export const api = {
+  models: {
+    create: (data: any) => apiRequest("POST", "/api/models/huggingface", data),
+    test: (id: number, prompt: string) => apiRequest("POST", `/api/models/huggingface/${id}/test`, { prompt }),
+  },
+  // Add other endpoints as needed
+};
+3. Review and Remove OpenAI References Elsewhere
+Throughout the project, search for any remaining references to OpenAI in model-related functions or API interactions, and convert them to use Hugging Face or Gemini calls:
+
+In the llm.ts or similar files, ensure that the model interaction code is changed to utilize Hugging Face and Gemini APIs.
